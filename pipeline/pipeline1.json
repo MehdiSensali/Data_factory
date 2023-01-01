@@ -47,7 +47,7 @@
 						"referenceName": "InputDataset",
 						"type": "DatasetReference",
 						"parameters": {
-							"fileName": "cars.csv"
+							"fileName": "movies.csv"
 						}
 					}
 				],
@@ -56,7 +56,7 @@
 						"referenceName": "OutputDataset",
 						"type": "DatasetReference",
 						"parameters": {
-							"tableName": "Cars"
+							"tableName": "Movies"
 						}
 					}
 				]
@@ -86,10 +86,10 @@
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"SQLTableSource": {
-								"tableName": "Cars"
+								"tableName": "Movies"
 							},
 							"sink1": {
-								"tableName": "Cars"
+								"tableName": "Movies"
 							}
 						}
 					},
