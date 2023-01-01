@@ -1,0 +1,55 @@
+{
+	"name": "OutputDataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "OutputSQL",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Film",
+				"type": "varchar"
+			},
+			{
+				"name": "Genre",
+				"type": "varchar"
+			},
+			{
+				"name": "Lead Studio",
+				"type": "varchar"
+			},
+			{
+				"name": "Audience score %",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Profitability",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 5
+			},
+			{
+				"name": "Rotten Tomatoes %",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Worldwide Gross",
+				"type": "varchar"
+			},
+			{
+				"name": "Year",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Movies"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

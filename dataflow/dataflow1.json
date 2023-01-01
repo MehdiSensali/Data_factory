@@ -1,0 +1,117 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "OutputDataset",
+						"type": "DatasetReference"
+					},
+					"name": "SQLTableSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "OutputDataset",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "selectRotten",
+					"description": "Renaming Rotten Tomatoes % to Rotten"
+				},
+				{
+					"name": "filterYear"
+				},
+				{
+					"name": "WorldwideConvert"
+				},
+				{
+					"name": "windowRatingsRanks",
+					"description": "Windowing on genre and year, sorting with rotten, and calculating ranks"
+				},
+				{
+					"name": "alterRow1"
+				},
+				{
+					"name": "cast1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Film as string,",
+				"          Genre as string,",
+				"          {Lead Studio} as string,",
+				"          {Audience score %} as integer,",
+				"          Profitability as decimal(18,5),",
+				"          {Rotten Tomatoes %} as integer,",
+				"          {Worldwide Gross} as string,",
+				"          Year as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> SQLTableSource",
+				"SQLTableSource select(mapColumn(",
+				"          Film,",
+				"          Genre,",
+				"          {Lead Studio},",
+				"          {Audience score %},",
+				"          Profitability,",
+				"          Rotten = {Rotten Tomatoes %},",
+				"          {Worldwide Gross},",
+				"          Year",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectRotten",
+				"selectRotten filter(Year > 2000) ~> filterYear",
+				"filterYear derive({Worldwide Gross} = toFloat(right({Worldwide Gross}, length({Worldwide Gross}) - 1))) ~> WorldwideConvert",
+				"WorldwideConvert window(over(Genre,",
+				"          Year),",
+				"     desc(Rotten, true),",
+				"     RatingsRank = rank()) ~> windowRatingsRanks",
+				"cast1 alterRow(insertIf(true())) ~> alterRow1",
+				"windowRatingsRanks cast(output(",
+				"          {Worldwide Gross} as string",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Film as string,",
+				"          Genre as string,",
+				"          {Lead Studio} as string,",
+				"          {Audience score %} as integer,",
+				"          Profitability as decimal(18,5),",
+				"          {Rotten Tomatoes %} as integer,",
+				"          {Worldwide Gross} as string,",
+				"          Year as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Film,",
+				"          Genre,",
+				"          {Lead Studio},",
+				"          {Audience score %},",
+				"          Profitability,",
+				"          {Rotten Tomatoes %} = Rotten,",
+				"          {Worldwide Gross},",
+				"          Year",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
